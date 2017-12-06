@@ -76,7 +76,7 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        dists[i, j] = np.dot(X[i,:], self.X_train[j, :])
+        dists[i, j] = np.sqrt(np.dot((X[i,:]-self.X_train[j, :]), (X[i,:]-self.X_train[j, :])))
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -98,7 +98,7 @@ class KNearestNeighbor(object):
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      dists[i, :] = np.linalg.solve(X[i,:].T, self.X_train[j, :])
+      dists[i, :] = np.sqrt(np.sum(np.square(self.X_train - X[i,:]), axis=1))
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -126,7 +126,7 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    pass
+    dists = np.sqrt(np.sum(np.square(X), axis=1)[:, np.newaxis]+np.sum(np.square(self.X_train), axis=1)-2*np.dot(X, self.X_train.T))
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
@@ -166,8 +166,6 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      print(np.array(closest_y))
-      print(self.y_train[np.array(closest_y)])
       y_pred[i] = stats.mode(self.y_train[np.array(closest_y)])
       ########################################################################
       #                           END OF YOUR CODE                            # 
