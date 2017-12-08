@@ -72,11 +72,13 @@ class TwoLayerNet(object):
     # Compute the forward pass
     scores = None
     #############################################################################
+    #loss = np.sum(scores)/num_train + reg * np.sum(W * W)
     # TODO: Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    h1 = np.max(0, X.dot(self.params['W1'])+self.params['b1'])
+    scores = 1/(1+np.exp(-(h1.dot(self.params['W2'])+self.params['b2'])))
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -93,7 +95,10 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+    reg_loss = reg*np.sum(self.params['W1']*self.params['W1'])+reg*np.sum(self.params['W2']*self.params['W2'])
+    loss = np.sum(-np.log(np.exp(scores)/np.sum(np.exp(scores), axis=1, keepdims=True)))
+    loss += reg_loss
+    loss /= N
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
