@@ -77,8 +77,12 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    h1 = np.max(0, X.dot(self.params['W1'])+self.params['b1'])
-    scores = 1/(1+np.exp(-(h1.dot(self.params['W2'])+self.params['b2'])))
+    Z0 = X.dot(self.params['W1'])+self.params['b1']
+    H0 = np.max(0, Z0)
+    Z1 = H0.dot(self.params['W2'])+self.params['b2']
+    marg = -np.maximum(score, axis=1, keepdims= True)
+    scores = np.log(np.exp(Z1-marg)/np.sum(np.exp(Z1-marg), axis=1, keepdims=True))
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -95,10 +99,7 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    reg_loss = reg*np.sum(self.params['W1']*self.params['W1'])+reg*np.sum(self.params['W2']*self.params['W2'])
-    loss = np.sum(-np.log(np.exp(scores)/np.sum(np.exp(scores), axis=1, keepdims=True)))
-    loss += reg_loss
-    loss /= N
+    loss = np.sum(-np.log(scores[xrange(N), y[i]]))
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
