@@ -81,8 +81,9 @@ class TwoLayerNet(object):
     H0 = np.max(0, Z0)
     Z1 = H0.dot(self.params['W2'])+self.params['b2']
     marg = -np.maximum(score, axis=1, keepdims= True)
-    scores = np.log(np.exp(Z1-marg)/np.sum(np.exp(Z1-marg), axis=1, keepdims=True))
-
+    softmax = np.exp(Z1-marg)/np.sum(np.exp(Z1-marg), axis=1, keepdims=True)
+    scores = np.log(softmax)
+    
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -100,6 +101,7 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
     loss = np.sum(-np.log(scores[xrange(N), y[i]]))
+    loss += reg * np.sum(W * W)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -111,7 +113,14 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    scores = 0
+    scores[xrange(X.shape[0]), y] = 1
+    softmax -= scores
+    grads['W2']=H0.T.dot(softmax)
+    grads['b2']=np.sum(softmax, axis=0, keepdims=True)
+    grads['W1']=softmax.dot(Z1)
+    grads['b1']=np.dot
+    dW += 2*reg * np.sum(W, axis = 1, keepdims=True)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
