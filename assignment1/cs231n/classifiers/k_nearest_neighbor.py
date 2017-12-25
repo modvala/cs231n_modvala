@@ -76,7 +76,7 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        dists[i, j] = np.sqrt(np.squre((X[i,:]-self.X_train[j, :]), (X[i,:]-self.X_train[j, :])))
+        dists[i, j] = np.sqrt(np.sum(np.square(X[i,:]-self.X_train[j, :])))
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -166,7 +166,10 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      y_pred[i] = stats.mode(self.y_train[np.array(closest_y)])
+      #print(closest_y)
+      #print(self.y_train[closest_y])
+      y_pred[i] = stats.mode(self.y_train[closest_y])[0][0]
+      #break
       ########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
