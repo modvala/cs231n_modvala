@@ -122,7 +122,7 @@ class TwoLayerNet(object):
     grads['b2']=np.sum(softmax, axis=0, keepdims=True)
     grads['W1']=X.T.dot(softmax.dot(self.params['W2'].T)*H0_)
     grads['b1']=np.sum(softmax.dot(self.params['W2'].T)*H0_, axis=0, keepdims=True)
-    dW += 2*reg * np.sum(W, axis = 1, keepdims=True)
+    dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################

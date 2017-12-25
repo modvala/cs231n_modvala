@@ -47,7 +47,7 @@ def softmax_loss_naive(W, X, y, reg):
 
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
-  dW += 2*reg * np.sum(W, axis = 1, keepdims=True)
+  dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -72,7 +72,7 @@ def softmax_loss_vectorized(W, X, y, reg):
   # regularization!                                                           #
   #############################################################################
   score = X.dot(W)
-  marg = -np.maximum(score, axis=1, keepdims= True)
+  marg = np.maximum(score, axis=1, keepdims= True)
   soft = np.log(np.exp(score-marg)/np.sum(np.exp(score-marg), axis=1, keepdims=True))
   loss = np.sum(soft[xrange(X.shape[0]),y])
   score = 0
@@ -81,7 +81,7 @@ def softmax_loss_vectorized(W, X, y, reg):
   dW = soft.dot(X)
     
   loss += reg * np.sum(W * W)
-  dW += 2*reg * np.sum(W, axis = 1, keepdims=True)
+  dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
