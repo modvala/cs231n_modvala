@@ -30,15 +30,16 @@ def svm_loss_naive(W, X, y, reg):
     scores = X[i].dot(W)
     correct_class_score = scores[y[i]]
     for j in xrange(num_classes):
-      margin = scores[j] - correct_class_score + 1 # note delta = 1
+      acc = 0
       if j == y[i]:
         continue
       else:
+        margin = scores[j] - correct_class_score + 1 # note delta = 1
         if margin > 0:
-            dW[:, j] = X[i]
-            acc -= X[i]
+            dW[:, j] += X[i]
+            acc -= X[y[i]]
             loss += margin
-      dW[:,j]  = acc
+    dW[:,y[i]]  += acc
       
         
 
@@ -49,8 +50,9 @@ def svm_loss_naive(W, X, y, reg):
 
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
-  dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
-
+  #dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
+  dW += 2*reg * W
+  
   #############################################################################
   # TODO:                                                                     #
   # Compute the gradient of the loss function and store it dW.                #
@@ -82,9 +84,11 @@ def svm_loss_vectorized(W, X, y, reg):
   num_train = X.shape[0]
     
   scores = X.dot(W)
-  scores[range(num_train), y[i]] = 0
-  scores = scores - y[:, np.newaxis] + 1
+  scores = scores - scores[range(num_train), y][:, np.newaxis] + 1
+  #print(scores)
+  scores[range(num_train), y] = 0
   scores[np.where(scores<=0)] = 0
+    
     
   loss = np.sum(scores)/num_train + reg * np.sum(W * W)
   #############################################################################
@@ -101,10 +105,12 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
+  #print(scores)
   scores[np.where(scores>0)] = 1
-  scores[range(num_train), y] = np.sum(scores, axis = 1, keepdims=True)
-
-  dW = X.T.dot(scores)+2*reg * np.sum(W, axis = 0, keepdims=True)
+  scores[range(num_train), y] = np.sum(scores, axis = 1)
+  #print(scores)
+  dW = X.T.dot(scores) #2*reg * np.sum(W, axis = 0, keepdims=True)
+  dW += 2*reg * W
   ############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
