@@ -36,11 +36,12 @@ def softmax_loss_naive(W, X, y, reg):
 
   for i in xrange(num_train):
     score = X[i].dot(W)
-    marg = -np.maximum(score)
-    soft = np.log(np.exp(score-marg)/np.sum(np.exp(score-marg)))
-    loss -= soft[i,y[i]]
+    score -= np.max(score)
+    soft = np.log(np.exp(score)/np.sum(np.exp(score)))
+    print(soft)
+    loss -= soft[y[i]]
     score = 0
-    score[i, y[i]] = 1
+    score[y[i]] = 1
     soft -= score
     dW = soft.dot(X[i])
  

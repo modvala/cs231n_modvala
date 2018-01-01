@@ -69,7 +69,7 @@ class LinearClassifier(object):
       # TODO:                                                                 #
       # Update the weights using the gradient and the learning rate.          #
       #########################################################################
-      self.W += learning_rate*grad
+      self.W -= learning_rate*grad
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
@@ -99,6 +99,7 @@ class LinearClassifier(object):
     # Implement this method. Store the predicted labels in y_pred.            #
     ###########################################################################
     y_pred = X.dot(self.W)
+    y_pred = np.where((y_pred - np.max(y_pred, axis =1, keepdims=True))==0)[1]
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
