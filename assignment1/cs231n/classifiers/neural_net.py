@@ -78,14 +78,15 @@ class TwoLayerNet(object):
     # shape (N, C).                                                             #
     #############################################################################
     Z0 = X.dot(self.params['W1'])+self.params['b1']
-    H0 = np.max(0, Z0)
+    H0 = np.maximum(0, Z0)
     H0_ = np.copy(H0)
     H0_[np.where(H0_!=0)] = 1
     Z1 = H0.dot(self.params['W2'])+self.params['b2']
-    marg = -np.maximum(score, axis=1, keepdims= True)
-    softmax = np.exp(Z1-marg)/np.sum(np.exp(Z1-marg), axis=1, keepdims=True)
+    Z1 -= np.max(Z1, axis=1, keepdims= True)
+    softmax = np.exp(Z1)/np.sum(np.exp(Z1), axis=1, keepdims=True)
     scores = np.log(softmax)
     
+     
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -102,8 +103,9 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    loss = np.sum(-np.log(scores[xrange(N), y[i]]))
-    loss += reg * np.sum(W * W)
+    loss = -np.sum(scores)/N
+    loss += reg * np.sum(self.params['W2'] * self.params['W2'])
+    
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -115,14 +117,16 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    scores = 0
-    scores[xrange(X.shape[0]), y] = 1
-    softmax -= scores
-    grads['W2']=H0.T.dot(softmax)
-    grads['b2']=np.sum(softmax, axis=0, keepdims=True)
-    grads['W1']=X.T.dot(softmax.dot(self.params['W2'].T)*H0_)
-    grads['b1']=np.sum(softmax.dot(self.params['W2'].T)*H0_, axis=0, keepdims=True)
-    dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
+    scores[xrange(N), y] = 1
+    scores[np.where(scores!=1)] = 0
+    scores -= softmax
+    scores = -scores
+    grads['W2']=H0.T.dot(scores)/N
+    grads['b2']=np.sum(scores, axis=0)/N
+    grads['W2'] += 2*reg * self.params['W2']
+    grads['W1']=X.T.dot(scores.dot(self.params['W2'].T)*H0_)
+    grads['b1']=np.sum(scores.dot(self.params['W2'].T)*H0_, axis=0)
+    grads['W1'] += 2*reg * self.params['W1']
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -166,7 +170,7 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      ind = np.random.choice(num_train, batch_size, replace=False)
+      ind = np.random.choice(num_train, batch_size, replace=True)
       X_batch = X[ind]
       y_batch = y[ind]
       #########################################################################
@@ -232,6 +236,7 @@ class TwoLayerNet(object):
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
     y_pred = self.loss(X, y=None)
+    y_pred = np.where((y_pred - np.max(y_pred, axis =1, keepdims=True))==0)[1]
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################

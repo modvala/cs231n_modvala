@@ -37,18 +37,23 @@ def softmax_loss_naive(W, X, y, reg):
   for i in xrange(num_train):
     score = X[i].dot(W)
     score -= np.max(score)
-    soft = np.log(np.exp(score)/np.sum(np.exp(score)))
-    print(soft)
-    loss -= soft[y[i]]
-    score = 0
+    soft = np.exp(score)/np.sum(np.exp(score))
+    loss -= np.log(soft[y[i]])
+    
+    #print(score, y[i], score.shape, score[5])
     score[y[i]] = 1
-    soft -= score
-    dW = soft.dot(X[i])
+    score[np.where(score!=1)] = 0
+    score -= soft
+    score = -score
+    for j in xrange(num_classes):
+        dW[:,j] = score[j]*X[i]
  
 
   # Add regularization to the loss.
+  loss /= num_train
   loss += reg * np.sum(W * W)
-  dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
+  dW /= num_train
+  dW += 2*reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
@@ -65,6 +70,7 @@ def softmax_loss_vectorized(W, X, y, reg):
   # Initialize the loss and gradient to zero.
   loss = 0.0
   dW = np.zeros_like(W)
+  num_train = X.shape[0]
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
@@ -73,16 +79,17 @@ def softmax_loss_vectorized(W, X, y, reg):
   # regularization!                                                           #
   #############################################################################
   score = X.dot(W)
-  marg = np.maximum(score, axis=1, keepdims= True)
-  soft = np.log(np.exp(score-marg)/np.sum(np.exp(score-marg), axis=1, keepdims=True))
-  loss = np.sum(soft[xrange(X.shape[0]),y])
-  score = 0
-  score[xrange(X.shape[0]), y] = 1
-  soft -= score
-  dW = soft.dot(X)
+  score -= np.max(score, axis=1, keepdims= True)
+  soft = np.exp(score)/np.sum(np.exp(score), axis=1, keepdims=True)
+  loss -= np.sum(np.log(soft[xrange(num_train),y]))/num_train
+  score[xrange(num_train), y] = 1
+  score[np.where(score!=1)] = 0
+  score -= soft
+  score = -score
+  dW = X.T.dot(score)/num_train
     
   loss += reg * np.sum(W * W)
-  dW += 2*reg * np.sum(W, axis = 0, keepdims=True)
+  dW += 2*reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
