@@ -3,7 +3,7 @@ from random import shuffle
 from past.builtins import xrange
 
 def softmax_loss_naive(W, X, y, reg):
-  """
+    """
   Softmax loss function, naive implementation (with loops)
 
   Inputs have dimension D, there are C classes, and we operate on minibatches
@@ -19,10 +19,10 @@ def softmax_loss_naive(W, X, y, reg):
   Returns a tuple of:
   - loss as single float
   - gradient with respect to weights W; an array of same shape as W
-  """
+    """
   # Initialize the loss and gradient to zero.
-  loss = 0.0
-  dW = np.zeros_like(W)
+    loss = 0.0
+    dW = np.zeros_like(W)
 
   #############################################################################
   # TODO: Compute the softmax loss and its gradient using explicit loops.     #
@@ -30,35 +30,33 @@ def softmax_loss_naive(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  num_classes = W.shape[1]
-  num_train = X.shape[0]
-  sigm = lambda x: 1/(1+np.exp(-x))
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
 
-  for i in xrange(num_train):
-    score = X[i].dot(W)
-    score -= np.max(score)
-    soft = np.exp(score)/np.sum(np.exp(score))
-    loss -= np.log(soft[y[i]])
-    
-    #print(score, y[i], score.shape, score[5])
-    score[y[i]] = 1
-    score[np.where(score!=1)] = 0
-    score -= soft
-    score = -score
-    for j in xrange(num_classes):
-        dW[:,j] = score[j]*X[i]
+    for i in xrange(num_train):
+        score = X[i].dot(W)
+        #score -= np.max(score)
+        soft = np.exp(score)/np.sum(np.exp(score))
+        loss -= np.log(soft[y[i]])
+
+        #print(score, y[i], score.shape, score[5])
+        score[y[i]] = 1
+        score[np.where(score!=1)] = 0
+        score -= soft
+        for j in xrange(num_classes):
+            dW[:,j] = -score[j]*X[i,:]
  
 
   # Add regularization to the loss.
-  loss /= num_train
-  loss += reg * np.sum(W * W)
-  dW /= num_train
-  dW += 2*reg * W
+    loss /= num_train
+    loss += reg * np.sum(W * W)
+    dW /= num_train
+    dW += 2*reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
 
-  return loss, dW
+    return loss, dW
 
 
 def softmax_loss_vectorized(W, X, y, reg):

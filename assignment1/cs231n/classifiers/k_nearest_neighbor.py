@@ -169,6 +169,7 @@ class KNearestNeighbor(object):
       #print(closest_y)
       #print(self.y_train[closest_y])
       y_pred[i] = stats.mode(self.y_train[closest_y])[0][0]
+      # best colution label_counts = np.bincount(closest_y) ### y_pred[i] = np.argmax(label_counts)
       #break
       ########################################################################
       #                           END OF YOUR CODE                            # 

@@ -27,21 +27,23 @@ def svm_loss_naive(W, X, y, reg):
   num_train = X.shape[0]
   loss = 0.0
   for i in xrange(num_train):
-    scores = X[i].dot(W)
-    correct_class_score = scores[y[i]]
-    for j in xrange(num_classes):
+      scores = X[i].dot(W)
+      correct_class_score = scores[y[i]]
       acc = 0
-      if j == y[i]:
-        continue
-      else:
-        margin = scores[j] - correct_class_score + 1 # note delta = 1
-        if margin > 0:
-            dW[:, j] += X[i]
-            acc -= X[i]
-            loss += margin
-    dW[:,y[i]]  += acc
-      
-        
+      for j in xrange(num_classes):
+          
+          if j == y[i]:
+              continue
+          else:
+              margin = scores[j] - correct_class_score + 1 # note delta = 1
+              if margin > 0:
+                  dW[:, j] += X[i,:]
+                  acc -= X[i,:]
+                  loss += margin
+                    
+      dW[:,y[i]]  += acc
+       
+         
 
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
@@ -91,6 +93,7 @@ def svm_loss_vectorized(W, X, y, reg):
     
     
   loss = np.sum(scores)/num_train + reg * np.sum(W * W)
+# interesting solution loss = margins.clip(min=0).sum() - num_train
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -106,7 +109,7 @@ def svm_loss_vectorized(W, X, y, reg):
   # loss.                                                                     #
   #############################################################################
   #print(scores)
-  scores[np.where(scores>0)] = 1
+  scores[np.where(scores>0)] = 1 # or np.greater(scores, 0).astype('int')
   scores[xrange(num_train), y] = -np.sum(scores, axis = 1)
   #print(scores)
   dW = X.T.dot(scores)/num_train #2*reg * np.sum(W, axis = 0, keepdims=True)

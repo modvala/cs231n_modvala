@@ -100,6 +100,7 @@ class LinearClassifier(object):
     ###########################################################################
     y_pred = X.dot(self.W)
     y_pred = np.where((y_pred - np.max(y_pred, axis =1, keepdims=True))==0)[1]
+    # best solution y_pred = np.argmax(X.dot(self.W), axis=1)
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
